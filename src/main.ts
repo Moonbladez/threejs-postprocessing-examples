@@ -7,6 +7,7 @@ import { DotScreenPass } from "three/examples/jsm/postprocessing/DotScreenPass.j
 import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
+import { GammaCorrectionShader } from "three/examples/jsm/shaders/GammaCorrectionShader.js";
 import { RGBShiftShader } from "three/examples/jsm/shaders/RGBShiftShader.js";
 
 /**
@@ -161,6 +162,11 @@ const rgbShiftPass = new ShaderPass(RGBShiftShader);
 postprocessing.addPass(rgbShiftPass);
 rgbShiftPass.enabled = false;
 rgbShiftFolder.add(rgbShiftPass, "enabled").name("RGB Shift");
+
+//color fix
+const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
+postprocessing.addPass(gammaCorrectionPass);
+
 /**
  * Animate
  */
