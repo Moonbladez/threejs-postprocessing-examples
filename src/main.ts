@@ -22,6 +22,7 @@ const glitchFolder = gui.addFolder("Glitch").close();
 const rgbShiftFolder = gui.addFolder("RGB Shift").close();
 const unrealBloomPassFolder = gui.addFolder("Unreal Bloom").close();
 const tintFolder = gui.addFolder("Tint").close();
+const displacementFolder = gui.addFolder("Displacement").close();
 
 const gammaCorrectionFolder = gui.addFolder("Gamma Correction").close();
 
@@ -222,7 +223,40 @@ tintFolder.add(tintPass.material.uniforms.uTint.value, "x").min(-1).max(1).step(
 tintFolder.add(tintPass.material.uniforms.uTint.value, "y").min(-1).max(1).step(0.001).name("Green");
 tintFolder.add(tintPass.material.uniforms.uTint.value, "z").min(-1).max(1).step(0.001).name("Blue");
 
-//color fix. Goes at the end of passes
+//Displacement pass
+const DisplacementPass = {
+  uniforms: {
+    tDiffuse: { value: null },
+    uTime: { value: null },
+  },
+  vertexShader: `
+    varying vec2 vUv;
+
+    void main() {
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+
+      vUv = uv;
+    }
+  `,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform float uTime;
+
+    varying vec2 vUv;
+
+    void main() {
+      vec2 newUv = vec2(vUv.x, vUv.y + sin(vUv.x * 6.0 + uTime) * 0.1);
+      vec4 color = texture2D(tDiffuse, newUv);
+      gl_FragColor = color;
+    }
+  `,
+};
+const displacementPass = new ShaderPass(DisplacementPass);
+displacementPass.material.uniforms.uTime.value = 0;
+postprocessing.addPass(displacementPass);
+displacementFolder.add(displacementPass, "enabled").name("Displacement");
+
+//COLOR FIX Goes at the end of passes
 const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
 postprocessing.addPass(gammaCorrectionPass);
 //gui
@@ -247,6 +281,9 @@ const tick = () => {
 
   // Update controls
   controls.update();
+
+  // UPDATE PASSES
+  displacementPass.material.uniforms.uTime.value = elapsedTime;
 
   // Render
   // renderer.render(scene, camera);
