@@ -219,6 +219,8 @@ const TintShader = {
 const tintPass = new ShaderPass(TintShader);
 tintPass.material.uniforms.uTint.value = new THREE.Vector3();
 postprocessing.addPass(tintPass);
+tintPass.enabled = false;
+tintFolder.add(tintPass, "enabled").name("Tint");
 tintFolder.add(tintPass.material.uniforms.uTint.value, "x").min(-1).max(1).step(0.001).name("Red");
 tintFolder.add(tintPass.material.uniforms.uTint.value, "y").min(-1).max(1).step(0.001).name("Green");
 tintFolder.add(tintPass.material.uniforms.uTint.value, "z").min(-1).max(1).step(0.001).name("Blue");
