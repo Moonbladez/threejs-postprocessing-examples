@@ -21,6 +21,7 @@ const dotScreenFolder = gui.addFolder("Dot Screen").close();
 const glitchFolder = gui.addFolder("Glitch").close();
 const rgbShiftFolder = gui.addFolder("RGB Shift").close();
 const unrealBloomPassFolder = gui.addFolder("Unreal Bloom").close();
+const tintFolder = gui.addFolder("Tint").close();
 
 const gammaCorrectionFolder = gui.addFolder("Gamma Correction").close();
 
@@ -177,13 +178,49 @@ postprocessing.addPass(rgbShiftPass);
 rgbShiftPass.enabled = false;
 rgbShiftFolder.add(rgbShiftPass, "enabled").name("RGB Shift");
 
+//unreal bloom
 const unrealBloomPass = new UnrealBloomPass(new THREE.Vector2(sizes.width, sizes.height), 1.5, 0.4, 0.85);
 postprocessing.addPass(unrealBloomPass);
-unrealBloomPass.enabled = true;
+unrealBloomPass.enabled = false;
 unrealBloomPassFolder.add(unrealBloomPass, "enabled").name("Unreal Bloom");
 unrealBloomPassFolder.add(unrealBloomPass, "strength").min(0).max(2).step(0.001).name("Strength");
 unrealBloomPassFolder.add(unrealBloomPass, "radius").min(0).max(3).step(0.001).name("Radius");
 unrealBloomPassFolder.add(unrealBloomPass, "threshold").min(0).max(1).step(0.001).name("Threshold");
+
+//Tone pass
+const TintShader = {
+  uniforms: {
+    tDiffuse: { value: null },
+    uTint: { value: null },
+  },
+  vertexShader: `
+    varying vec2 vUv;
+
+    void main() {
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+
+      vUv = uv;
+    }
+  `,
+  fragmentShader: `
+    uniform sampler2D tDiffuse;
+    uniform vec3 uTint;
+
+    varying vec2 vUv;
+
+    void main() {
+      vec4 color = texture2D(tDiffuse, vUv);
+      color.rgb += uTint;
+      gl_FragColor = color;
+    }
+  `,
+};
+const tintPass = new ShaderPass(TintShader);
+tintPass.material.uniforms.uTint.value = new THREE.Vector3();
+postprocessing.addPass(tintPass);
+tintFolder.add(tintPass.material.uniforms.uTint.value, "x").min(-1).max(1).step(0.001).name("Red");
+tintFolder.add(tintPass.material.uniforms.uTint.value, "y").min(-1).max(1).step(0.001).name("Green");
+tintFolder.add(tintPass.material.uniforms.uTint.value, "z").min(-1).max(1).step(0.001).name("Blue");
 
 //color fix. Goes at the end of passes
 const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
