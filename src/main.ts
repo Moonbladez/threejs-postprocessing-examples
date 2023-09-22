@@ -6,6 +6,8 @@ import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { DotScreenPass } from "three/examples/jsm/postprocessing/DotScreenPass.js";
 import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
+import { RGBShiftShader } from "three/examples/jsm/shaders/RGBShiftShader.js";
 
 /**
  * Base
@@ -14,6 +16,7 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 const gui = new GUI();
 const dotScreenFolder = gui.addFolder("Dot Screen").close();
 const glitchFolder = gui.addFolder("Glitch").close();
+const rgbShiftFolder = gui.addFolder("RGB Shift").close();
 
 // Canvas
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
@@ -153,6 +156,11 @@ glitchPass.goWild = false;
 glitchFolder.add(glitchPass, "enabled").name("Glitch");
 glitchFolder.add(glitchPass, "goWild").name("Go Wild");
 
+//rgb shift
+const rgbShiftPass = new ShaderPass(RGBShiftShader);
+postprocessing.addPass(rgbShiftPass);
+rgbShiftPass.enabled = false;
+rgbShiftFolder.add(rgbShiftPass, "enabled").name("RGB Shift");
 /**
  * Animate
  */
