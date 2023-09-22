@@ -6,6 +6,7 @@ import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { DotScreenPass } from "three/examples/jsm/postprocessing/DotScreenPass.js";
 import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
 import { GammaCorrectionShader } from "three/examples/jsm/shaders/GammaCorrectionShader.js";
 import { RGBShiftShader } from "three/examples/jsm/shaders/RGBShiftShader.js";
@@ -138,11 +139,16 @@ renderer.toneMappingExposure = 1.5;
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
+//render target
+const renderTarget = new THREE.WebGLRenderTarget(sizes.width, sizes.height, {
+  samples: renderer.getPixelRatio() === 1 ? 2 : 0,
+});
+
 /**
  * Post processing
  */
 
-const postprocessing = new EffectComposer(renderer);
+const postprocessing = new EffectComposer(renderer, renderTarget);
 postprocessing.setSize(sizes.width, sizes.height);
 postprocessing.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
@@ -169,11 +175,20 @@ postprocessing.addPass(rgbShiftPass);
 rgbShiftPass.enabled = false;
 rgbShiftFolder.add(rgbShiftPass, "enabled").name("RGB Shift");
 
-//color fix
+//color fix. Goes at the end of passes
 const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
 postprocessing.addPass(gammaCorrectionPass);
 //gui
 gammaCorrectionFolder.add(gammaCorrectionPass, "enabled").name("Gamma Correction");
+
+//smaa
+if (renderer.getPixelRatio() === 1 && !renderer.capabilities.isWebGL2) {
+  const smaaPass = new SMAAPass(
+    window.innerWidth * renderer.getPixelRatio(),
+    window.innerHeight * renderer.getPixelRatio()
+  );
+  postprocessing.addPass(smaaPass);
+}
 
 /**
  * Animate
