@@ -8,6 +8,7 @@ import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { SMAAPass } from "three/examples/jsm/postprocessing/SMAAPass.js";
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass.js";
+import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
 import { GammaCorrectionShader } from "three/examples/jsm/shaders/GammaCorrectionShader.js";
 import { RGBShiftShader } from "three/examples/jsm/shaders/RGBShiftShader.js";
 
@@ -19,6 +20,7 @@ const gui = new GUI();
 const dotScreenFolder = gui.addFolder("Dot Screen").close();
 const glitchFolder = gui.addFolder("Glitch").close();
 const rgbShiftFolder = gui.addFolder("RGB Shift").close();
+const unrealBloomPassFolder = gui.addFolder("Unreal Bloom").close();
 
 const gammaCorrectionFolder = gui.addFolder("Gamma Correction").close();
 
@@ -174,6 +176,14 @@ const rgbShiftPass = new ShaderPass(RGBShiftShader);
 postprocessing.addPass(rgbShiftPass);
 rgbShiftPass.enabled = false;
 rgbShiftFolder.add(rgbShiftPass, "enabled").name("RGB Shift");
+
+const unrealBloomPass = new UnrealBloomPass(new THREE.Vector2(sizes.width, sizes.height), 1.5, 0.4, 0.85);
+postprocessing.addPass(unrealBloomPass);
+unrealBloomPass.enabled = true;
+unrealBloomPassFolder.add(unrealBloomPass, "enabled").name("Unreal Bloom");
+unrealBloomPassFolder.add(unrealBloomPass, "strength").min(0).max(2).step(0.001).name("Strength");
+unrealBloomPassFolder.add(unrealBloomPass, "radius").min(0).max(3).step(0.001).name("Radius");
+unrealBloomPassFolder.add(unrealBloomPass, "threshold").min(0).max(1).step(0.001).name("Threshold");
 
 //color fix. Goes at the end of passes
 const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
