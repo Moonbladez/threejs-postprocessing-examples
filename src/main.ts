@@ -3,6 +3,8 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { DotScreenPass } from "three/examples/jsm/postprocessing/DotScreenPass.js";
+import { GlitchPass } from "three/examples/jsm/postprocessing/GlitchPass.js";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 
 /**
@@ -10,6 +12,8 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
  */
 // Debug
 const gui = new GUI();
+const dotScreenFolder = gui.addFolder("Dot Screen").close();
+const glitchFolder = gui.addFolder("Glitch").close();
 
 // Canvas
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
@@ -134,6 +138,20 @@ postprocessing.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 const renderPass = new RenderPass(scene, camera);
 postprocessing.addPass(renderPass);
+
+//Dot screen
+const dotScreenPass = new DotScreenPass();
+postprocessing.addPass(dotScreenPass);
+dotScreenPass.enabled = false;
+dotScreenFolder.add(dotScreenPass, "enabled").name("Dot Screen");
+
+//Glitch
+const glitchPass = new GlitchPass();
+postprocessing.addPass(glitchPass);
+glitchPass.enabled = false;
+glitchPass.goWild = false;
+glitchFolder.add(glitchPass, "enabled").name("Glitch");
+glitchFolder.add(glitchPass, "goWild").name("Go Wild");
 
 /**
  * Animate
