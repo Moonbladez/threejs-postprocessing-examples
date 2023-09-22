@@ -19,6 +19,8 @@ const dotScreenFolder = gui.addFolder("Dot Screen").close();
 const glitchFolder = gui.addFolder("Glitch").close();
 const rgbShiftFolder = gui.addFolder("RGB Shift").close();
 
+const gammaCorrectionFolder = gui.addFolder("Gamma Correction").close();
+
 // Canvas
 const canvas = document.getElementById("canvas") as HTMLCanvasElement;
 
@@ -103,6 +105,10 @@ window.addEventListener("resize", () => {
   // Update renderer
   renderer.setSize(sizes.width, sizes.height);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  //update postprocessing
+  postprocessing.setSize(sizes.width, sizes.height);
+  postprocessing.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
 
 /**
@@ -166,6 +172,8 @@ rgbShiftFolder.add(rgbShiftPass, "enabled").name("RGB Shift");
 //color fix
 const gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
 postprocessing.addPass(gammaCorrectionPass);
+//gui
+gammaCorrectionFolder.add(gammaCorrectionPass, "enabled").name("Gamma Correction");
 
 /**
  * Animate
